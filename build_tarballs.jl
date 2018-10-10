@@ -18,6 +18,12 @@ platforms = [
 # Libgfortran version (equivalently the gcc version)
 platforms = expand_gcc_versions(platforms)
 
+# some platforms don't work. :(
+non_working_platforms = [
+    MacOS(:x86_64, compiler_abi=CompilerABI(:gcc4))
+]                     
+platforms = setdiff(platforms, non_working_platforms)
+
 script = raw"""
 cd $WORKSPACE/srcdir/ddierckx
 
