@@ -2,18 +2,21 @@ using BinaryBuilder
 
 sources = ["./src"]
 
-# These are the platforms built inside the wizard
+# There are more supported platforms available in BinaryBuilder
+# (see supported_platforms()), but just build the most common ones.
 platforms = [
-    BinaryProvider.Linux(:i686, :glibc),
-    BinaryProvider.Linux(:x86_64, :glibc),
-    #BinaryProvider.Linux(:aarch64, :glibc),
-    #BinaryProvider.Linux(:armv7l, :glibc),
-    #BinaryProvider.Linux(:powerpc64le, :glibc),
-    BinaryProvider.MacOS(),
-    BinaryProvider.Windows(:i686),
-    BinaryProvider.Windows(:x86_64)
+    Linux(:i686, :glibc),
+    Linux(:x86_64, :glibc),
+    Linux(:armv7l, :glibc),
+    MacOS(:x86_64),
+    FreeBSD(:x86_64),
+    Windows(:i686),
+    Windows(:x86_64)
 ]
 
+# Libddierckx links to libgfortran, so we need to build specific to
+# Libgfortran version (equivalently the gcc version)
+platforms = expand_gcc_versions(platforms)
 
 script = raw"""
 cd $WORKSPACE/srcdir/ddierckx
@@ -24,7 +27,7 @@ libdir="lib"
 # set suffix
 if [[ ${target} == *-mingw32 ]]; then
     suffix="dll"
-    flags="${flags} -static-libgfortran -static-libgcc"
+# flags="${flags} -static-libgfortran -static-libgcc"
     libdir="bin"
 elif [[ ${target} == *apple* ]]; then
     suffix="dylib"
